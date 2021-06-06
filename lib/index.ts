@@ -21,7 +21,20 @@ export const postSampleLambdaFunction = async (event:APIGatewayProxyEventV2, con
     }
 
     const nino = typeof event.body == 'object' ? event.body : JSON.parse(event.body)
-    
+    const successQ = new AWS.SQS({apiVersion: '2021-06-07'})
+
+    var params = {
+        QueueName: 'SQS_QUEUE_NAME'
+    }
+
+  await successQ.getQueueUrl(params, function(err, data) {
+        if(err){
+            console.log("error", err)
+        } else {
+            process.env.PROCESS_QUEUE_URL = data.QueueUrl
+        }
+    })
+
     await successQ.sendMessage({
          MessageBody: 'Hello',
          QueueUrl: process.env.PROCESS_QUEUE_URL || ' '
